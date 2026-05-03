@@ -1,6 +1,6 @@
 ﻿import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Fuel, Loader2, MapPin, Navigation } from 'lucide-react';
+import { ArrowDown, Fuel, Loader2, MapPin, Navigation } from 'lucide-react';
 import { BRAND_SVG_LOGOS, detectBrandKey, svgToDataUrl } from './brandSvgLogos';
 
 type Station = {
@@ -86,8 +86,19 @@ export default function Test2Page() {
   const [hoveredStationId, setHoveredStationId] = useState<string | null>(null);
   const [detected, setDetected] = useState<LocationFix | null>(null);
   const [stage, setStage] = useState<'intro' | 'map'>('intro');
+  const [isMobileViewport, setIsMobileViewport] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < 768 : false
+  );
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const apiKey = useMemo(() => import.meta.env.VITE_GOOGLE_MAPS_API_KEY, []);
+  const radiusSteps = [5, 10, 15, 20, 25];
+
+  useEffect(() => {
+    const onResize = () => setIsMobileViewport(window.innerWidth < 768);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const loadGoogleMaps = async () => {
     console.info('[test2] loadGoogleMaps:start', { hasGoogle: !!window.google?.maps });
@@ -250,6 +261,11 @@ export default function Test2Page() {
 
   const drawFocusMarker = (station: Station) => {
     if (!googleMapRef.current || !window.google?.maps) return;
+    const pinWidth = isMobileViewport ? 56 : 72;
+    const pinRadius = isMobileViewport ? 8 : 10;
+    const priceFont = isMobileViewport ? 13 : 16;
+    const logoSize = isMobileViewport ? 34 : 43;
+    const pinTop = isMobileViewport ? 66 : 84;
     const brandKey = detectBrandKey(station.name);
     const svgMarkup = BRAND_SVG_LOGOS[brandKey] || BRAND_SVG_LOGOS.unknown;
     const logoSrc = brandLogoMarkers && svgMarkup ? svgToDataUrl(svgMarkup) : station.image;
@@ -262,8 +278,8 @@ export default function Test2Page() {
     markerEl.innerHTML = `
       <div style="position:relative; transform:translateZ(0);">
         <div style="
-          width:72px;
-          border-radius:10px;
+          width:${pinWidth}px;
+          border-radius:${pinRadius}px;
           overflow:hidden;
           border:2px solid #ffffff;
           background:#efefef;
@@ -274,13 +290,13 @@ export default function Test2Page() {
             background:#111111;
             color:#f5f5f5;
             text-align:center;
-            font-size:16px;
+            font-size:${priceFont}px;
             font-weight:800;
             line-height:1;
-            padding:7px 4px 8px;
+            padding:${isMobileViewport ? '6px 4px 7px' : '7px 4px 8px'};
           ">$${station.price.toFixed(2)}</div>
-          <div style="background:#f1f1f1;display:flex;align-items:center;justify-content:center;padding:7px 0 9px;">
-            <div style="width:43px;height:43px;border-radius:999px;background:#ffffff;border:2px solid #bcbcbc;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+          <div style="background:#f1f1f1;display:flex;align-items:center;justify-content:center;padding:${isMobileViewport ? '5px 0 6px' : '7px 0 9px'};">
+            <div style="width:${logoSize}px;height:${logoSize}px;border-radius:999px;background:#ffffff;border:2px solid #bcbcbc;overflow:hidden;display:flex;align-items:center;justify-content:center;">
               ${
                 logoSrc
                   ? `<img src="${logoSrc}" alt="" style="width:100%;height:100%;object-fit:contain;display:block;" />`
@@ -292,9 +308,9 @@ export default function Test2Page() {
         <div style="
           position:absolute; left:50%; transform:translateX(-50%);
           top:100%; margin-top:-1px; width:0; height:0;
-          border-left:12px solid transparent;
-          border-right:12px solid transparent;
-          border-top:14px solid #c8c8c8;
+          border-left:${isMobileViewport ? 9 : 12}px solid transparent;
+          border-right:${isMobileViewport ? 9 : 12}px solid transparent;
+          border-top:${isMobileViewport ? 10 : 14}px solid #c8c8c8;
           filter:drop-shadow(0 3px 4px rgba(0,0,0,0.25));
         "></div>
       </div>
@@ -309,8 +325,8 @@ export default function Test2Page() {
       const pos = projection.fromLatLngToDivPixel(new window.google.maps.LatLng(station.lat, station.lon));
       if (!pos) return;
       markerEl.style.position = 'absolute';
-      markerEl.style.left = `${pos.x - 36}px`;
-      markerEl.style.top = `${pos.y - 84}px`;
+      markerEl.style.left = `${pos.x - pinWidth / 2}px`;
+      markerEl.style.top = `${pos.y - pinTop}px`;
     };
     overlay.onRemove = function onRemove() {
       markerEl.remove();
@@ -367,6 +383,11 @@ export default function Test2Page() {
     clearMarkers();
 
     items.forEach((s, index) => {
+      const pinWidth = isMobileViewport ? 56 : 72;
+      const pinRadius = isMobileViewport ? 8 : 10;
+      const priceFont = isMobileViewport ? 13 : 16;
+      const logoSize = isMobileViewport ? 34 : 43;
+      const pinTop = isMobileViewport ? 66 : 84;
       const markerEl = document.createElement('div');
       markerEl.className = 'luxefuel-pin';
       const brandKey = detectBrandKey(s.name);
@@ -375,8 +396,8 @@ export default function Test2Page() {
       markerEl.innerHTML = `
         <div style="position:relative; transform:translateZ(0);">
           <div style="
-            width:72px;
-            border-radius:10px;
+            width:${pinWidth}px;
+            border-radius:${pinRadius}px;
             overflow:hidden;
             border:1px solid #8f8f8f;
             background:#efefef;
@@ -387,10 +408,10 @@ export default function Test2Page() {
               background:#111111;
               color:#f5f5f5;
               text-align:center;
-              font-size:16px;
+              font-size:${priceFont}px;
               font-weight:800;
               line-height:1;
-              padding:7px 4px 8px;
+              padding:${isMobileViewport ? '6px 4px 7px' : '7px 4px 8px'};
               letter-spacing:0.01em;
             ">
               $${s.price.toFixed(2)}
@@ -400,10 +421,10 @@ export default function Test2Page() {
               display:flex;
               align-items:center;
               justify-content:center;
-              padding:7px 0 9px;
+              padding:${isMobileViewport ? '5px 0 6px' : '7px 0 9px'};
             ">
               <div style="
-                width:43px;height:43px;border-radius:999px;
+                width:${logoSize}px;height:${logoSize}px;border-radius:999px;
                 background:#ffffff;border:2px solid #bcbcbc;
                 overflow:hidden;display:flex;align-items:center;justify-content:center;
               ">
@@ -418,9 +439,9 @@ export default function Test2Page() {
           <div style="
             position:absolute; left:50%; transform:translateX(-50%);
             top:100%; margin-top:-1px; width:0; height:0;
-            border-left:12px solid transparent;
-            border-right:12px solid transparent;
-            border-top:14px solid #c8c8c8;
+            border-left:${isMobileViewport ? 9 : 12}px solid transparent;
+            border-right:${isMobileViewport ? 9 : 12}px solid transparent;
+            border-top:${isMobileViewport ? 10 : 14}px solid #c8c8c8;
             filter:drop-shadow(0 3px 4px rgba(0,0,0,0.25));
           "></div>
         </div>
@@ -457,8 +478,8 @@ export default function Test2Page() {
         const pos = projection.fromLatLngToDivPixel(new window.google.maps.LatLng(s.lat, s.lon));
         if (!pos) return;
         markerEl.style.position = 'absolute';
-        markerEl.style.left = `${pos.x - 36}px`;
-        markerEl.style.top = `${pos.y - 84}px`;
+        markerEl.style.left = `${pos.x - pinWidth / 2}px`;
+        markerEl.style.top = `${pos.y - pinTop}px`;
       };
       marker.onRemove = function onRemove() {
         markerElementsRef.current.delete(s.id);
@@ -476,6 +497,18 @@ export default function Test2Page() {
     const currentZoom = Number(map.getZoom?.() ?? 12);
     if (currentZoom < 13) map.setZoom(13);
     drawFocusMarker(station);
+  };
+
+  const cycleRadius = () => {
+    const idx = radiusSteps.indexOf(radiusKm);
+    const next = radiusSteps[(idx + 1) % radiusSteps.length] ?? 20;
+    setRadiusKm(next);
+  };
+
+  const cycleFuel = () => {
+    const currentIdx = FUEL_CHOICES.findIndex((f) => f.value === fuelType);
+    const next = FUEL_CHOICES[(currentIdx + 1) % FUEL_CHOICES.length]?.value ?? 'REGULAR_UNLEADED';
+    setFuelType(next);
   };
 
   const fetchCheapestAroundYou = async (lat: number, lon: number, activeSequence: number) => {
@@ -881,15 +914,73 @@ export default function Test2Page() {
               transition={{ duration: 0.65, delay: 0.08 }}
               className="rounded-3xl border border-white/10 bg-luxury-gray-900 overflow-hidden relative min-h-[760px] md:min-h-[860px] lg:h-[78vh] lg:min-h-[650px] lg:grid lg:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_320px]"
             >
-              <div className="relative min-h-[500px] md:min-h-[620px] lg:h-full">
+              <div className="relative min-h-[680px] md:min-h-[620px] lg:h-full">
               <div className="absolute inset-x-0 top-0 z-20 p-3 md:p-4 pointer-events-none">
+                <div className="lg:hidden pointer-events-auto rounded-2xl border border-white/12 bg-black/52 backdrop-blur-md px-3 py-3 shadow-2xl shadow-black/30">
+                  <div className="rounded-2xl border border-white/15 bg-white/[0.04] px-3 py-2 flex items-center justify-between gap-3">
+                    <p className="text-[15px] truncate inline-flex items-center gap-2">
+                      <MapPin size={14} className="opacity-75" />
+                      {detected ? `${detected.lat.toFixed(5)}, ${detected.lon.toFixed(5)}` : 'Awaiting location...'}
+                    </p>
+                    <span className="shrink-0 text-[15px] font-semibold inline-flex items-center gap-1">{radiusKm} km</span>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-4 gap-2">
+                    <button type="button" onClick={cycleFuel} className="rounded-2xl border border-white/15 bg-white/[0.04] px-2 py-2 text-[16px] font-semibold inline-flex items-center justify-center gap-1">
+                      {fuelType === 'REGULAR_UNLEADED' ? 'Regular' : fuelType === 'MIDGRADE' ? 'Mid' : fuelType === 'PREMIUM' ? 'Premium' : 'Diesel'} <ArrowDown size={13} />
+                    </button>
+                    <button type="button" onClick={() => setSortMode((v) => (v === 'price' ? 'distance' : 'price'))} className="rounded-2xl border border-white/15 bg-white/[0.04] px-2 py-2 text-[16px] font-semibold inline-flex items-center justify-center gap-1">
+                      {sortMode === 'price' ? 'Price' : 'Near'} <ArrowDown size={13} />
+                    </button>
+                    <button type="button" onClick={cycleRadius} className="rounded-2xl border border-white/15 bg-white/[0.04] px-2 py-2 text-[16px] font-semibold inline-flex items-center justify-center gap-1">
+                      {radiusKm} km <ArrowDown size={13} />
+                    </button>
+                    <button type="button" onClick={() => setMobileFiltersOpen((v) => !v)} className="rounded-2xl border border-white/15 bg-white/[0.04] px-2 py-2 text-[16px] font-semibold inline-flex items-center justify-center">
+                      ⚙
+                    </button>
+                  </div>
+
+                  <div className="mt-2 text-[14px] leading-none">
+                    <span className="text-emerald-400">● Updating prices...</span>
+                  </div>
+
+                  <AnimatePresence>
+                    {mobileFiltersOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -8, height: 0 }}
+                        animate={{ opacity: 1, y: 0, height: 'auto' }}
+                        exit={{ opacity: 0, y: -8, height: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="mt-2 grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setShowRadiusRing((v) => !v)}
+                            className={`rounded-xl border px-2 py-2 text-[12px] uppercase tracking-[0.12em] ${showRadiusRing ? 'border-white/35 bg-white/10' : 'border-white/12 bg-white/[0.04]'}`}
+                          >
+                            Radius Ring: {showRadiusRing ? 'On' : 'Off'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setBrandLogoMarkers((v) => !v)}
+                            className={`rounded-xl border px-2 py-2 text-[12px] uppercase tracking-[0.12em] ${brandLogoMarkers ? 'border-white/35 bg-white/10' : 'border-white/12 bg-white/[0.04]'}`}
+                          >
+                            Marker: {brandLogoMarkers ? 'Brand' : 'Photo'}
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
                 <motion.div
                   animate={{
                     scale: refreshing ? 0.992 : 1,
                     borderColor: refreshing ? 'rgba(255,255,255,0.24)' : 'rgba(255,255,255,0.12)',
                   }}
                   transition={{ duration: 0.24, ease: 'easeOut' }}
-                  className="rounded-2xl border border-white/12 bg-black/45 backdrop-blur-md px-3 md:px-4 py-2.5 md:py-3 w-[min(94vw,430px)] pointer-events-auto shadow-2xl shadow-black/30"
+                  className="hidden lg:block rounded-2xl border border-white/12 bg-black/45 backdrop-blur-md px-3 md:px-4 py-2.5 md:py-3 w-[min(94vw,430px)] pointer-events-auto shadow-2xl shadow-black/30"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
@@ -1084,53 +1175,34 @@ export default function Test2Page() {
               )}
               </div>
 
-              <aside className="relative border-t lg:border-t-0 lg:border-l border-white/10 bg-black/45 backdrop-blur-xl p-2.5 md:p-4 flex flex-col max-h-[42vh] lg:max-h-none rounded-t-2xl lg:rounded-none">
-                <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
+              <aside className="relative border-t lg:border-t-0 lg:border-l border-white/10 bg-black/68 lg:bg-black/45 backdrop-blur-xl p-3 lg:p-4 flex flex-col max-h-[46vh] lg:max-h-none rounded-t-3xl lg:rounded-none shadow-2xl shadow-black/35 lg:shadow-none">
+                <div className="flex items-start justify-between gap-3">
                   <div>
-                    <div className="flex items-center gap-2">
-                      <Fuel size={13} />
-                      <p className="text-[9px] md:text-[10px] uppercase tracking-[0.2em] opacity-60">Cheapest Nearby</p>
-                    </div>
-                    <h2 className="font-display text-lg md:text-xl font-bold uppercase mt-1.5 md:mt-2 leading-none">Live Finds</h2>
+                    <p className="text-[9px] sm:text-[10px] md:text-[11px] uppercase tracking-[0.18em] sm:tracking-[0.22em] opacity-70">Cheapest Nearby</p>
+                    <h2 className="font-display text-[34px] sm:text-[40px] md:text-[44px] font-bold uppercase mt-1.5 sm:mt-2 leading-[0.94]">Live Finds</h2>
                   </div>
-                  <div className="rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[8px] md:text-[10px] uppercase tracking-[0.14em] opacity-70">
-                    Top 10 shown
+                  <div className="rounded-2xl border border-white/20 bg-white/[0.04] px-3 sm:px-4 py-1.5 sm:py-2 text-[9px] sm:text-[10px] md:text-[12px] uppercase tracking-[0.14em] sm:tracking-[0.18em] opacity-90 inline-flex items-center gap-1.5 sm:gap-2">
+                    Top 10 <ArrowDown size={14} />
                   </div>
                 </div>
-                <p className="mt-2 text-[9px] md:text-[10px] uppercase tracking-[0.12em] opacity-40">
-                  API parses gas stations from your location up to {discoveryRadiusKm} km and ranks by price per liter.
+                <p className="mt-2.5 sm:mt-3 text-[12px] sm:text-[14px] md:text-[16px] opacity-60 leading-snug">
+                  Live gas prices within {radiusKm} km of you.
                 </p>
-                <div className="mt-2 rounded-xl border border-white/10 bg-white/[0.045] px-3 py-2">
-                  {cheapestAroundYou && !discoveryLoading ? (
-                    <button
-                      type="button"
-                      onClick={() => focusStationOnMap(cheapestAroundYou)}
-                      className="w-full text-left text-[9px] md:text-[10px] uppercase tracking-[0.12em] opacity-75 hover:opacity-100 transition-opacity"
-                    >
-                      {`Cheapest around you: ${cheapestAroundYou.name} at $${cheapestAroundYou.price.toFixed(2)}${typeof cheapestAroundYou.distanceKm === 'number' ? ` · ${cheapestAroundYou.distanceKm.toFixed(1)} km away` : ''}`}
-                    </button>
-                  ) : (
-                    <p className="text-[9px] md:text-[10px] uppercase tracking-[0.12em] opacity-65">
-                      {discoveryLoading
-                        ? `Background scan in progress: parsing up to ${discoveryRadiusKm} km for the cheapest station...`
-                        : `Parsing up to ${discoveryRadiusKm} km to find the cheapest gas station around you...`}
-                    </p>
-                  )}
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  <div className="rounded-2xl border border-white/20 bg-white/[0.04] px-2.5 sm:px-3 py-1.5 sm:py-2 text-[14px] sm:text-base font-semibold inline-flex items-center justify-between">
+                    <span>{radiusKm} km</span><ArrowDown size={15} className="opacity-75" />
+                  </div>
+                  <div className="rounded-2xl border border-white/20 bg-white/[0.04] px-2.5 sm:px-3 py-1.5 sm:py-2 text-[14px] sm:text-base font-semibold inline-flex items-center justify-between">
+                    <span>{sortMode === 'price' ? 'Price' : 'Nearest'}</span><ArrowDown size={15} className="opacity-75" />
+                  </div>
+                  <div className="rounded-2xl border border-white/20 bg-white/[0.04] px-2.5 sm:px-3 py-1.5 sm:py-2 text-[14px] sm:text-base font-semibold inline-flex items-center justify-between">
+                    <span>{fuelType === 'REGULAR_UNLEADED' ? 'Regular' : fuelType === 'MIDGRADE' ? 'Midgrade' : fuelType === 'PREMIUM' ? 'Premium' : 'Diesel'}</span><ArrowDown size={15} className="opacity-75" />
+                  </div>
                 </div>
 
-                <div className="mt-3 grid grid-cols-3 gap-1">
-                  <div className="rounded-xl border border-white/10 bg-white/[0.04] p-2">
-                    <p className="text-[8px] md:text-[9px] uppercase tracking-[0.14em] opacity-45">Radius</p>
-                    <p className="font-display text-sm md:text-base font-bold">{radiusKm} km</p>
-                  </div>
-                  <div className="rounded-xl border border-white/10 bg-white/[0.04] p-2">
-                    <p className="text-[8px] md:text-[9px] uppercase tracking-[0.14em] opacity-45">Sort</p>
-                    <p className="font-display text-sm md:text-base font-bold">{sortMode === 'price' ? 'Price' : 'Near'}</p>
-                  </div>
-                  <div className="rounded-xl border border-white/10 bg-white/[0.04] p-2">
-                    <p className="text-[8px] md:text-[9px] uppercase tracking-[0.14em] opacity-45">Fuel</p>
-                    <p className="font-display text-sm md:text-base font-bold">{fuelType === 'REGULAR_UNLEADED' ? 'Reg' : fuelType === 'MIDGRADE' ? 'Mid' : fuelType === 'PREMIUM' ? 'Prem' : 'Diesel'}</p>
-                  </div>
+                <div className="mt-2.5 sm:mt-3 text-[14px] sm:text-lg leading-tight">
+                  <span className="text-emerald-400 font-semibold">{discoveryLoading ? 'Updating prices…' : 'Live prices ready'}</span>
+                  <span className="opacity-60"> · up to {discoveryRadiusKm} km</span>
                 </div>
 
                 <AnimatePresence>
@@ -1142,7 +1214,7 @@ export default function Test2Page() {
                       transition={{ duration: 0.22 }}
                       className="overflow-hidden"
                     >
-                      <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.045] p-3">
+                      <div className="mt-2 lg:mt-3 rounded-xl border border-white/10 bg-white/[0.045] p-2.5 lg:p-3">
                         <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] opacity-65">
                           <Loader2 className="animate-spin" size={12} />
                           Searching full radius
@@ -1164,7 +1236,7 @@ export default function Test2Page() {
                   )}
                 </AnimatePresence>
 
-                <div className="mt-3 flex-1 min-h-0 overflow-y-auto pr-0.5 space-y-1.5 md:space-y-2">
+                <div className="mt-3 flex-1 min-h-0 overflow-y-auto pr-0.5 space-y-2.5">
                   <AnimatePresence mode="popLayout">
                     {visibleStations.map((s, index) => (
                       <motion.button
@@ -1185,18 +1257,18 @@ export default function Test2Page() {
                         }}
                         onBlur={() => setHoveredStationId((current) => (current === s.id ? null : current))}
                         onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}`, '_blank', 'no-referrer')}
-                        className="group w-full text-left rounded-xl border border-white/10 bg-white/[0.045] px-2.5 md:px-3 py-2 md:py-2.5 hover:border-white/30 hover:bg-white/[0.075] hover:-translate-y-0.5 transition-all duration-200"
+                        className="group w-full text-left rounded-3xl border border-white/15 bg-white/[0.035] px-3 sm:px-4 py-2.5 sm:py-3 hover:border-white/30 hover:bg-white/[0.07] transition-all duration-200"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
-                            <p className="font-display text-[11px] md:text-xs uppercase truncate">{s.name}</p>
-                            <p className="text-[10px] md:text-[11px] opacity-50 mt-1 truncate">{s.address}</p>
+                            <p className="font-display text-[14px] sm:text-[16px] md:text-[18px] font-semibold uppercase truncate inline-flex items-center gap-2 sm:gap-3">
+                              <span className="text-white/90 text-[13px] sm:text-[15px]">{index + 1}</span>
+                              {s.name.replace(/\s+gas\s+station/gi, '')}
+                            </p>
+                            <p className="text-[12px] sm:text-[14px] opacity-60 mt-1 truncate">{s.address?.split(',').slice(0, 2).join(',')}</p>
+                            <p className="text-[12px] sm:text-[14px] opacity-75 mt-0.5">{typeof s.distanceKm === 'number' ? `${s.distanceKm.toFixed(1)} km away` : 'Distance unavailable'}</p>
                           </div>
-                          <span className="font-display text-base md:text-lg font-bold leading-none">${s.price.toFixed(2)}</span>
-                        </div>
-                        <div className="mt-2.5 md:mt-3 flex items-center justify-between gap-3 text-[9px] md:text-[10px] uppercase tracking-[0.12em] opacity-45">
-                          <span>{typeof s.distanceKm === 'number' ? `${s.distanceKm.toFixed(1)} km away` : 'Distance unavailable'}</span>
-                          <span className="truncate">{s.fuelType || fuelType}</span>
+                          <span className="font-display text-[38px] sm:text-[46px] md:text-[48px] font-bold leading-none">${s.price.toFixed(2)}<span className="text-[20px] sm:text-[26px] opacity-65">/L</span></span>
                         </div>
                         <AnimatePresence>
                           {hoveredStationId === s.id && (
@@ -1205,7 +1277,7 @@ export default function Test2Page() {
                               animate={{ opacity: 1, y: 0, height: 'auto' }}
                               exit={{ opacity: 0, y: -4, height: 0 }}
                               transition={{ duration: 0.18 }}
-                              className="overflow-hidden"
+                              className="hidden md:block overflow-hidden"
                             >
                               <div className="mt-3 rounded-lg border border-white/10 bg-black/25 px-3 py-2">
                                 <div className="flex items-center justify-between gap-3">
