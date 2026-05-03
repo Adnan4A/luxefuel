@@ -859,7 +859,7 @@ export default function Test2Page() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45 }}
-            className="max-w-[1500px] mx-auto px-4 md:px-6 py-8 min-h-screen"
+            className="max-w-[1500px] mx-auto px-3 md:px-6 py-5 md:py-8 min-h-screen"
           >
             <motion.div
               initial={{ y: 40, opacity: 0, scale: 1.02 }}
@@ -867,10 +867,10 @@ export default function Test2Page() {
               transition={{ duration: 0.55 }}
               className="text-center mb-6 md:mb-8"
             >
-              <h1 className="font-display text-4xl md:text-6xl font-bold uppercase tracking-tight leading-[0.95]">
+              <h1 className="font-display text-3xl md:text-6xl font-bold uppercase tracking-tight leading-[0.95]">
                 Find Cheap <span className="italic font-light opacity-70">Gas</span>
               </h1>
-              <p className="text-[10px] uppercase tracking-[0.22em] opacity-50 mt-2">
+              <p className="text-[9px] md:text-[10px] uppercase tracking-[0.2em] opacity-50 mt-2">
                 Live Map View · Monochrome Luxury
               </p>
             </motion.div>
@@ -879,9 +879,9 @@ export default function Test2Page() {
               initial={{ y: 90, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.65, delay: 0.08 }}
-              className="rounded-3xl border border-white/10 bg-luxury-gray-900 overflow-hidden relative min-h-[860px] lg:h-[78vh] lg:min-h-[650px] lg:grid lg:grid-cols-[minmax(0,1fr)_290px] xl:grid-cols-[minmax(0,1fr)_310px]"
+              className="rounded-3xl border border-white/10 bg-luxury-gray-900 overflow-hidden relative min-h-[760px] md:min-h-[860px] lg:h-[78vh] lg:min-h-[650px] lg:grid lg:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_320px]"
             >
-              <div className="relative min-h-[620px] lg:h-full">
+              <div className="relative min-h-[500px] md:min-h-[620px] lg:h-full">
               <div className="absolute inset-x-0 top-0 z-20 p-3 md:p-4 pointer-events-none">
                 <motion.div
                   animate={{
@@ -889,16 +889,16 @@ export default function Test2Page() {
                     borderColor: refreshing ? 'rgba(255,255,255,0.24)' : 'rgba(255,255,255,0.12)',
                   }}
                   transition={{ duration: 0.24, ease: 'easeOut' }}
-                  className="rounded-2xl border border-white/12 bg-black/45 backdrop-blur-md px-4 py-3 w-[min(92vw,430px)] pointer-events-auto shadow-2xl shadow-black/30"
+                  className="rounded-2xl border border-white/12 bg-black/45 backdrop-blur-md px-3 md:px-4 py-2.5 md:py-3 w-[min(94vw,430px)] pointer-events-auto shadow-2xl shadow-black/30"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-[10px] uppercase tracking-[0.22em] opacity-60">Detected Location</p>
-                      <p className="text-sm mt-1 opacity-85">
+                      <p className="text-[9px] md:text-[10px] uppercase tracking-[0.2em] opacity-60">Detected Location</p>
+                      <p className="text-xs md:text-sm mt-1 opacity-85">
                         {detected ? `${detected.lat.toFixed(5)}, ${detected.lon.toFixed(5)}` : 'Awaiting permission...'}
                       </p>
                       {detected?.accuracy && (
-                        <p className="text-[10px] uppercase tracking-[0.16em] opacity-45 mt-1">
+                        <p className="text-[9px] md:text-[10px] uppercase tracking-[0.15em] opacity-45 mt-1">
                           Accuracy {detected.accuracy}m · {detected.source}
                         </p>
                       )}
@@ -909,11 +909,11 @@ export default function Test2Page() {
                         initial={{ opacity: 0, y: 8, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         transition={{ duration: 0.26, ease: 'easeOut' }}
-                        className="font-display text-2xl font-bold leading-none"
+                        className="font-display text-xl md:text-2xl font-bold leading-none"
                       >
                         {radiusKm}
                       </motion.p>
-                      <p className="text-[9px] uppercase tracking-[0.18em] opacity-45">km radius</p>
+                      <p className="text-[8px] md:text-[9px] uppercase tracking-[0.16em] opacity-45">km radius</p>
                     </div>
                   </div>
 
@@ -928,7 +928,7 @@ export default function Test2Page() {
                       className="w-full accent-white"
                       aria-label="Search radius in kilometers"
                     />
-                    <div className="mt-1 flex justify-between text-[9px] uppercase tracking-[0.16em] opacity-45">
+                    <div className="mt-1 flex justify-between text-[8px] md:text-[9px] uppercase tracking-[0.14em] opacity-45">
                       <span>5</span>
                       <span>10</span>
                       <span>15</span>
@@ -937,13 +937,13 @@ export default function Test2Page() {
                     </div>
                   </div>
 
-                  <div className="mt-3 grid grid-cols-4 gap-1.5">
+                  <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                     {FUEL_CHOICES.map((choice) => (
                       <button
                         key={choice.value}
                         type="button"
                         onClick={() => setFuelType(choice.value)}
-                        className={`rounded-full border px-2 py-1.5 text-[9px] uppercase tracking-[0.12em] transition-all duration-200 hover:-translate-y-0.5 ${
+                        className={`rounded-full border px-2 py-1.5 text-[8px] md:text-[9px] uppercase tracking-[0.1em] transition-all duration-200 hover:-translate-y-0.5 ${
                           fuelType === choice.value
                             ? 'border-white bg-white text-black'
                             : 'border-white/15 bg-white/5 text-white/65 hover:border-white/35'
@@ -956,12 +956,12 @@ export default function Test2Page() {
 
                   <div className="mt-3 grid grid-cols-2 gap-2">
                     <div className="rounded-xl border border-white/12 bg-white/5 px-2 py-2">
-                      <p className="text-[9px] uppercase tracking-[0.16em] opacity-45 px-1">Sort</p>
+                      <p className="text-[8px] md:text-[9px] uppercase tracking-[0.14em] opacity-45 px-1">Sort</p>
                       <div className="mt-2 grid grid-cols-2 gap-1">
                         <button
                           type="button"
                           onClick={() => setSortMode('price')}
-                          className={`rounded-md border px-2 py-1 text-[10px] uppercase tracking-[0.12em] transition-all duration-200 ${
+                          className={`rounded-md border px-2 py-1 text-[9px] md:text-[10px] uppercase tracking-[0.1em] transition-all duration-200 ${
                             sortMode === 'price'
                               ? 'border-white bg-white text-black'
                               : 'border-white/15 bg-white/0 text-white/75 hover:border-white/35'
@@ -972,7 +972,7 @@ export default function Test2Page() {
                         <button
                           type="button"
                           onClick={() => setSortMode('distance')}
-                          className={`rounded-md border px-2 py-1 text-[10px] uppercase tracking-[0.12em] transition-all duration-200 ${
+                          className={`rounded-md border px-2 py-1 text-[9px] md:text-[10px] uppercase tracking-[0.1em] transition-all duration-200 ${
                             sortMode === 'distance'
                               ? 'border-white bg-white text-black'
                               : 'border-white/15 bg-white/0 text-white/75 hover:border-white/35'
@@ -983,9 +983,9 @@ export default function Test2Page() {
                       </div>
                     </div>
                     <div className="rounded-xl border border-white/12 bg-white/5 px-2 py-2">
-                      <p className="text-[9px] uppercase tracking-[0.16em] opacity-45 px-1">Cards</p>
+                      <p className="text-[8px] md:text-[9px] uppercase tracking-[0.14em] opacity-45 px-1">Cards</p>
                       <div className="mt-2">
-                        <div className="rounded-md border border-white bg-white text-black px-2 py-1 text-[10px] uppercase tracking-[0.12em] font-bold text-center">
+                        <div className="rounded-md border border-white bg-white text-black px-2 py-1 text-[9px] md:text-[10px] uppercase tracking-[0.1em] font-bold text-center">
                           Top 10
                         </div>
                       </div>
@@ -997,8 +997,8 @@ export default function Test2Page() {
                         showRadiusRing ? 'border-white/35 bg-white/10' : 'border-white/12 bg-white/5'
                       }`}
                     >
-                      <p className="text-[9px] uppercase tracking-[0.16em] opacity-45">Radius Ring</p>
-                      <p className="text-xs font-bold uppercase">{showRadiusRing ? 'On' : 'Off'}</p>
+                      <p className="text-[8px] md:text-[9px] uppercase tracking-[0.14em] opacity-45">Radius Ring</p>
+                      <p className="text-[11px] md:text-xs font-bold uppercase">{showRadiusRing ? 'On' : 'Off'}</p>
                     </button>
                     <button
                       type="button"
@@ -1007,8 +1007,8 @@ export default function Test2Page() {
                         brandLogoMarkers ? 'border-white/35 bg-white/10' : 'border-white/12 bg-white/5'
                       }`}
                     >
-                      <p className="text-[9px] uppercase tracking-[0.16em] opacity-45">Marker Logos</p>
-                      <p className="text-xs font-bold uppercase">{brandLogoMarkers ? 'Brand' : 'Photo'}</p>
+                      <p className="text-[8px] md:text-[9px] uppercase tracking-[0.14em] opacity-45">Marker Logos</p>
+                      <p className="text-[11px] md:text-xs font-bold uppercase">{brandLogoMarkers ? 'Brand' : 'Photo'}</p>
                     </button>
                   </div>
 
@@ -1020,7 +1020,7 @@ export default function Test2Page() {
                         setError(null);
                         locateAndLoad(false);
                       }}
-                      className="mt-2 rounded-full border border-white/25 px-3 py-1 text-[10px] uppercase tracking-[0.2em] font-bold opacity-80 hover:opacity-100"
+                      className="mt-2 rounded-full border border-white/25 px-3 py-1 text-[9px] md:text-[10px] uppercase tracking-[0.16em] font-bold opacity-80 hover:opacity-100"
                     >
                       Use My Location
                     </button>
@@ -1084,20 +1084,20 @@ export default function Test2Page() {
               )}
               </div>
 
-              <aside className="relative border-t lg:border-t-0 lg:border-l border-white/10 bg-black/35 backdrop-blur-xl p-3 md:p-4 flex flex-col">
+              <aside className="relative border-t lg:border-t-0 lg:border-l border-white/10 bg-black/45 backdrop-blur-xl p-2.5 md:p-4 flex flex-col max-h-[42vh] lg:max-h-none rounded-t-2xl lg:rounded-none">
                 <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <Fuel size={15} />
-                      <p className="text-[10px] uppercase tracking-[0.22em] opacity-60">Cheapest Nearby</p>
+                      <Fuel size={13} />
+                      <p className="text-[9px] md:text-[10px] uppercase tracking-[0.2em] opacity-60">Cheapest Nearby</p>
                     </div>
-                    <h2 className="font-display text-xl font-bold uppercase mt-2 leading-none">Live Finds</h2>
+                    <h2 className="font-display text-lg md:text-xl font-bold uppercase mt-1.5 md:mt-2 leading-none">Live Finds</h2>
                   </div>
-                  <div className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.16em] opacity-70">
+                  <div className="rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[8px] md:text-[10px] uppercase tracking-[0.14em] opacity-70">
                     Top 10 shown
                   </div>
                 </div>
-                <p className="mt-2 text-[10px] uppercase tracking-[0.14em] opacity-40">
+                <p className="mt-2 text-[9px] md:text-[10px] uppercase tracking-[0.12em] opacity-40">
                   API parses gas stations from your location up to {discoveryRadiusKm} km and ranks by price per liter.
                 </p>
                 <div className="mt-2 rounded-xl border border-white/10 bg-white/[0.045] px-3 py-2">
@@ -1105,12 +1105,12 @@ export default function Test2Page() {
                     <button
                       type="button"
                       onClick={() => focusStationOnMap(cheapestAroundYou)}
-                      className="w-full text-left text-[10px] uppercase tracking-[0.14em] opacity-75 hover:opacity-100 transition-opacity"
+                      className="w-full text-left text-[9px] md:text-[10px] uppercase tracking-[0.12em] opacity-75 hover:opacity-100 transition-opacity"
                     >
                       {`Cheapest around you: ${cheapestAroundYou.name} at $${cheapestAroundYou.price.toFixed(2)}${typeof cheapestAroundYou.distanceKm === 'number' ? ` · ${cheapestAroundYou.distanceKm.toFixed(1)} km away` : ''}`}
                     </button>
                   ) : (
-                    <p className="text-[10px] uppercase tracking-[0.14em] opacity-65">
+                    <p className="text-[9px] md:text-[10px] uppercase tracking-[0.12em] opacity-65">
                       {discoveryLoading
                         ? `Background scan in progress: parsing up to ${discoveryRadiusKm} km for the cheapest station...`
                         : `Parsing up to ${discoveryRadiusKm} km to find the cheapest gas station around you...`}
@@ -1118,18 +1118,18 @@ export default function Test2Page() {
                   )}
                 </div>
 
-                <div className="mt-3 grid grid-cols-3 gap-1.5">
+                <div className="mt-3 grid grid-cols-3 gap-1">
                   <div className="rounded-xl border border-white/10 bg-white/[0.04] p-2">
-                    <p className="text-[9px] uppercase tracking-[0.16em] opacity-45">Radius</p>
-                    <p className="font-display text-base font-bold">{radiusKm} km</p>
+                    <p className="text-[8px] md:text-[9px] uppercase tracking-[0.14em] opacity-45">Radius</p>
+                    <p className="font-display text-sm md:text-base font-bold">{radiusKm} km</p>
                   </div>
                   <div className="rounded-xl border border-white/10 bg-white/[0.04] p-2">
-                    <p className="text-[9px] uppercase tracking-[0.16em] opacity-45">Sort</p>
-                    <p className="font-display text-base font-bold">{sortMode === 'price' ? 'Price' : 'Near'}</p>
+                    <p className="text-[8px] md:text-[9px] uppercase tracking-[0.14em] opacity-45">Sort</p>
+                    <p className="font-display text-sm md:text-base font-bold">{sortMode === 'price' ? 'Price' : 'Near'}</p>
                   </div>
                   <div className="rounded-xl border border-white/10 bg-white/[0.04] p-2">
-                    <p className="text-[9px] uppercase tracking-[0.16em] opacity-45">Fuel</p>
-                    <p className="font-display text-base font-bold">{fuelType === 'REGULAR_UNLEADED' ? 'Reg' : fuelType === 'MIDGRADE' ? 'Mid' : fuelType === 'PREMIUM' ? 'Prem' : 'Diesel'}</p>
+                    <p className="text-[8px] md:text-[9px] uppercase tracking-[0.14em] opacity-45">Fuel</p>
+                    <p className="font-display text-sm md:text-base font-bold">{fuelType === 'REGULAR_UNLEADED' ? 'Reg' : fuelType === 'MIDGRADE' ? 'Mid' : fuelType === 'PREMIUM' ? 'Prem' : 'Diesel'}</p>
                   </div>
                 </div>
 
@@ -1164,7 +1164,7 @@ export default function Test2Page() {
                   )}
                 </AnimatePresence>
 
-                <div className="mt-3 flex-1 min-h-0 overflow-y-auto pr-1 space-y-2">
+                <div className="mt-3 flex-1 min-h-0 overflow-y-auto pr-0.5 space-y-1.5 md:space-y-2">
                   <AnimatePresence mode="popLayout">
                     {visibleStations.map((s, index) => (
                       <motion.button
@@ -1185,16 +1185,16 @@ export default function Test2Page() {
                         }}
                         onBlur={() => setHoveredStationId((current) => (current === s.id ? null : current))}
                         onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}`, '_blank', 'no-referrer')}
-                        className="group w-full text-left rounded-xl border border-white/10 bg-white/[0.045] px-3 py-2.5 hover:border-white/30 hover:bg-white/[0.075] hover:-translate-y-0.5 transition-all duration-200"
+                        className="group w-full text-left rounded-xl border border-white/10 bg-white/[0.045] px-2.5 md:px-3 py-2 md:py-2.5 hover:border-white/30 hover:bg-white/[0.075] hover:-translate-y-0.5 transition-all duration-200"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
-                            <p className="font-display text-xs uppercase truncate">{s.name}</p>
-                            <p className="text-[11px] opacity-50 mt-1 truncate">{s.address}</p>
+                            <p className="font-display text-[11px] md:text-xs uppercase truncate">{s.name}</p>
+                            <p className="text-[10px] md:text-[11px] opacity-50 mt-1 truncate">{s.address}</p>
                           </div>
-                          <span className="font-display text-lg font-bold leading-none">${s.price.toFixed(2)}</span>
+                          <span className="font-display text-base md:text-lg font-bold leading-none">${s.price.toFixed(2)}</span>
                         </div>
-                        <div className="mt-3 flex items-center justify-between gap-3 text-[10px] uppercase tracking-[0.14em] opacity-45">
+                        <div className="mt-2.5 md:mt-3 flex items-center justify-between gap-3 text-[9px] md:text-[10px] uppercase tracking-[0.12em] opacity-45">
                           <span>{typeof s.distanceKm === 'number' ? `${s.distanceKm.toFixed(1)} km away` : 'Distance unavailable'}</span>
                           <span className="truncate">{s.fuelType || fuelType}</span>
                         </div>
@@ -1229,7 +1229,7 @@ export default function Test2Page() {
             </motion.section>
 
             <div className="mt-5 flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] opacity-45">
-              <MapPin size={12} />
+              <MapPin size={11} />
               Heading transitions to top while live map rises into center.
             </div>
           </motion.main>
