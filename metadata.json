@@ -1,0 +1,8 @@
+{
+  "name": "LuxeFuel",
+  "description": "A minimalist, monochrome luxury gas finder to locate the best fuel prices near you.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": []
+}
