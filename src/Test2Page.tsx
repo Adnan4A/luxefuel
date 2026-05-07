@@ -66,7 +66,6 @@ export default function Test2Page() {
   const radiusAnimationRef = useRef<number | null>(null);
   const fetchControllerRef = useRef<AbortController | null>(null);
   const discoveryControllerRef = useRef<AbortController | null>(null);
-  const discoveryRequestedRef = useRef(false);
   const fetchSequenceRef = useRef(0);
   const locationSequenceRef = useRef(0);
   const [mapMounted, setMapMounted] = useState(false);
@@ -576,10 +575,7 @@ export default function Test2Page() {
         sequence,
       });
       setStations(top);
-      if (!discoveryRequestedRef.current) {
-        discoveryRequestedRef.current = true;
-        void fetchCheapestAroundYou(lat, lon, sequence);
-      }
+      void fetchCheapestAroundYou(lat, lon, sequence);
     } catch (err: any) {
       if (err?.name === 'AbortError') {
         console.info('[test2] main-fetch:aborted', { sequence });
@@ -781,12 +777,11 @@ export default function Test2Page() {
   }, [stage, mapMounted]);
 
   const sortedStations = useMemo(() => {
-    const uniqueById = Array.from(
-      stations.reduce((acc, station) => {
-        if (!acc.has(station.id)) acc.set(station.id, station);
-        return acc;
-      }, new Map<string, Station>()).values()
-    );
+    const stationById = new Map<string, Station>();
+    stations.forEach((station) => {
+      if (!stationById.has(station.id)) stationById.set(station.id, station);
+    });
+    const uniqueById = Array.from(stationById.values());
 
     const sorted = [...uniqueById].sort((a, b) => {
       if (sortMode === 'distance') return (a.distanceKm ?? Number.POSITIVE_INFINITY) - (b.distanceKm ?? Number.POSITIVE_INFINITY);
@@ -798,6 +793,33 @@ export default function Test2Page() {
   const visibleStations = useMemo(() => {
     return sortedStations.slice(0, 10);
   }, [sortedStations]);
+
+  const mapStations = useMemo(() => {
+    if (!cheapestAroundYou || visibleStations.some((station) => station.id === cheapestAroundYou.id)) {
+      return visibleStations;
+    }
+    return [...visibleStations, cheapestAroundYou];
+  }, [cheapestAroundYou, visibleStations]);
+
+  const distanceToneClass = (distanceKm?: number) => {
+    if (typeof distanceKm !== 'number') return 'text-white/55';
+    if (distanceKm <= 15) return 'text-[#65a30d]';
+    return 'text-[#d97706]';
+  };
+
+  const priceToneClass = (price: number) => {
+    const prices = mapStations
+      .map((station) => station.price)
+      .filter((stationPrice) => Number.isFinite(stationPrice));
+    const cheapestPrice = Math.min(...prices);
+    if (!Number.isFinite(cheapestPrice)) return 'text-white';
+
+    const centsAboveCheapest = Math.round((price - cheapestPrice) * 100);
+    if (centsAboveCheapest <= 2) return 'text-[#16a34a]';
+    if (centsAboveCheapest <= 12) return 'text-[#65a30d]';
+    if (centsAboveCheapest <= 25) return 'text-[#d97706]';
+    return 'text-[#c2410c]';
+  };
 
   useEffect(() => {
     markerElementsRef.current.forEach((el, id) => {
@@ -847,10 +869,10 @@ export default function Test2Page() {
 
   useEffect(() => {
     if (!googleMapRef.current) return;
-    drawMarkers(visibleStations);
+    drawMarkers(mapStations);
     if (detected) drawUserMarker(detected);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visibleStations, brandLogoMarkers]);
+  }, [mapStations, brandLogoMarkers]);
 
 
   return (
@@ -1176,33 +1198,74 @@ export default function Test2Page() {
               </div>
 
               <aside className="relative border-t lg:border-t-0 lg:border-l border-white/10 bg-black/68 lg:bg-black/45 backdrop-blur-xl p-3 lg:p-4 flex flex-col max-h-[46vh] lg:max-h-none rounded-t-3xl lg:rounded-none shadow-2xl shadow-black/35 lg:shadow-none">
-                <div className="flex items-start justify-between gap-3">
+                <div>
                   <div>
                     <p className="text-[9px] sm:text-[10px] md:text-[11px] uppercase tracking-[0.18em] sm:tracking-[0.22em] opacity-70">Cheapest Nearby</p>
                     <h2 className="font-display text-[34px] sm:text-[40px] md:text-[44px] font-bold uppercase mt-1.5 sm:mt-2 leading-[0.94]">Live Finds</h2>
-                  </div>
-                  <div className="rounded-2xl border border-white/20 bg-white/[0.04] px-3 sm:px-4 py-1.5 sm:py-2 text-[9px] sm:text-[10px] md:text-[12px] uppercase tracking-[0.14em] sm:tracking-[0.18em] opacity-90 inline-flex items-center gap-1.5 sm:gap-2">
-                    Top 10 <ArrowDown size={14} />
                   </div>
                 </div>
                 <p className="mt-2.5 sm:mt-3 text-[12px] sm:text-[14px] md:text-[16px] opacity-60 leading-snug">
                   Live gas prices within {radiusKm} km of you.
                 </p>
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  <div className="rounded-2xl border border-white/20 bg-white/[0.04] px-2.5 sm:px-3 py-1.5 sm:py-2 text-[14px] sm:text-base font-semibold inline-flex items-center justify-between">
-                    <span>{radiusKm} km</span><ArrowDown size={15} className="opacity-75" />
-                  </div>
-                  <div className="rounded-2xl border border-white/20 bg-white/[0.04] px-2.5 sm:px-3 py-1.5 sm:py-2 text-[14px] sm:text-base font-semibold inline-flex items-center justify-between">
-                    <span>{sortMode === 'price' ? 'Price' : 'Nearest'}</span><ArrowDown size={15} className="opacity-75" />
-                  </div>
-                  <div className="rounded-2xl border border-white/20 bg-white/[0.04] px-2.5 sm:px-3 py-1.5 sm:py-2 text-[14px] sm:text-base font-semibold inline-flex items-center justify-between">
-                    <span>{fuelType === 'REGULAR_UNLEADED' ? 'Regular' : fuelType === 'MIDGRADE' ? 'Midgrade' : fuelType === 'PREMIUM' ? 'Premium' : 'Diesel'}</span><ArrowDown size={15} className="opacity-75" />
-                  </div>
-                </div>
 
-                <div className="mt-2.5 sm:mt-3 text-[14px] sm:text-lg leading-tight">
-                  <span className="text-emerald-400 font-semibold">{discoveryLoading ? 'Updating prices…' : 'Live prices ready'}</span>
-                  <span className="opacity-60"> · up to {discoveryRadiusKm} km</span>
+                <div className="mt-2.5 sm:mt-3 rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.06] px-3 py-2.5">
+                  <div className="grid grid-cols-[minmax(0,1fr)_minmax(96px,auto)] items-center gap-2.5">
+                    <div className="min-w-0">
+                      <p className="text-[9px] uppercase tracking-[0.18em] opacity-60">
+                        Cheapest up to {discoveryRadiusKm} km
+                      </p>
+                      {cheapestAroundYou ? (
+                        <>
+                          <p className="mt-1 font-sans text-[13px] xl:text-[14px] font-semibold uppercase truncate">
+                            {cheapestAroundYou.name.replace(/\s+gas\s+station/gi, '')}
+                          </p>
+                          <p className={`mt-0.5 text-[11px] xl:text-[12px] font-semibold ${distanceToneClass(cheapestAroundYou.distanceKm)}`}>
+                            {typeof cheapestAroundYou.distanceKm === 'number'
+                              ? `${cheapestAroundYou.distanceKm.toFixed(1)} km away`
+                              : 'Distance unavailable'}
+                          </p>
+                        </>
+                      ) : (
+                        <p className="mt-1 text-[13px] sm:text-[15px] opacity-70">
+                          {discoveryLoading ? 'Searching wider area...' : 'No wider-area price found yet'}
+                        </p>
+                      )}
+                    </div>
+                    {cheapestAroundYou ? (
+                      <button
+                        type="button"
+                        onMouseEnter={() => {
+                          setHoveredStationId(cheapestAroundYou.id);
+                          focusStationOnMap(cheapestAroundYou);
+                        }}
+                        onMouseLeave={() => setHoveredStationId((current) => (current === cheapestAroundYou.id ? null : current))}
+                        onFocus={() => {
+                          setHoveredStationId(cheapestAroundYou.id);
+                          focusStationOnMap(cheapestAroundYou);
+                        }}
+                        onBlur={() => setHoveredStationId((current) => (current === cheapestAroundYou.id ? null : current))}
+                        onClick={() =>
+                          window.open(
+                            `https://www.google.com/maps/dir/?api=1&destination=${cheapestAroundYou.lat},${cheapestAroundYou.lon}`,
+                            '_blank',
+                            'no-referrer'
+                          )
+                        }
+                        className="shrink-0 text-right"
+                      >
+                        <span className={`block font-display text-[28px] xl:text-[32px] font-bold leading-none tabular-nums ${priceToneClass(cheapestAroundYou.price)}`}>
+                          ${cheapestAroundYou.price.toFixed(2)}
+                          <span className="text-[15px] xl:text-[17px] text-white/50">/L</span>
+                        </span>
+                        <span className="mt-1 inline-flex items-center justify-end gap-1 text-[9px] uppercase tracking-[0.16em] opacity-70">
+                          <Navigation size={10} />
+                          Go
+                        </span>
+                      </button>
+                    ) : discoveryLoading ? (
+                      <Loader2 className="shrink-0 animate-spin text-emerald-300" size={18} />
+                    ) : null}
+                  </div>
                 </div>
 
                 <AnimatePresence>
@@ -1257,18 +1320,18 @@ export default function Test2Page() {
                         }}
                         onBlur={() => setHoveredStationId((current) => (current === s.id ? null : current))}
                         onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}`, '_blank', 'no-referrer')}
-                        className="group w-full text-left rounded-3xl border border-white/15 bg-white/[0.035] px-3 sm:px-4 py-2.5 sm:py-3 hover:border-white/30 hover:bg-white/[0.07] transition-all duration-200"
+                        className="group w-full text-left rounded-2xl border border-white/15 bg-white/[0.035] px-3 py-2.5 hover:border-white/30 hover:bg-white/[0.07] transition-all duration-200"
                       >
-                        <div className="flex items-start justify-between gap-3">
+                        <div className="grid grid-cols-[minmax(0,1fr)_minmax(104px,auto)] items-start gap-2.5">
                           <div className="min-w-0">
-                            <p className="font-display text-[14px] sm:text-[16px] md:text-[18px] font-semibold uppercase truncate inline-flex items-center gap-2 sm:gap-3">
-                              <span className="text-white/90 text-[13px] sm:text-[15px]">{index + 1}</span>
-                              {s.name.replace(/\s+gas\s+station/gi, '')}
+                            <p className="font-sans text-[13px] xl:text-[14px] font-semibold uppercase flex items-center gap-2 min-w-0">
+                              <span className="shrink-0 text-white/90 text-[12px] xl:text-[13px]">{index + 1}</span>
+                              <span className="min-w-0 truncate">{s.name.replace(/\s+gas\s+station/gi, '')}</span>
                             </p>
-                            <p className="text-[12px] sm:text-[14px] opacity-60 mt-1 truncate">{s.address?.split(',').slice(0, 2).join(',')}</p>
-                            <p className="text-[12px] sm:text-[14px] opacity-75 mt-0.5">{typeof s.distanceKm === 'number' ? `${s.distanceKm.toFixed(1)} km away` : 'Distance unavailable'}</p>
+                            <p className="text-[11px] xl:text-[12px] opacity-60 mt-1 truncate">{s.address?.split(',').slice(0, 2).join(',')}</p>
+                            <p className={`text-[11px] xl:text-[12px] font-semibold mt-0.5 ${distanceToneClass(s.distanceKm)}`}>{typeof s.distanceKm === 'number' ? `${s.distanceKm.toFixed(1)} km away` : 'Distance unavailable'}</p>
                           </div>
-                          <span className="font-display text-[38px] sm:text-[46px] md:text-[48px] font-bold leading-none">${s.price.toFixed(2)}<span className="text-[20px] sm:text-[26px] opacity-65">/L</span></span>
+                          <span className={`shrink-0 text-right font-display text-[30px] xl:text-[34px] font-bold leading-none tabular-nums ${priceToneClass(s.price)}`}>${s.price.toFixed(2)}<span className="text-[16px] xl:text-[18px] text-white/50">/L</span></span>
                         </div>
                         <AnimatePresence>
                           {hoveredStationId === s.id && (

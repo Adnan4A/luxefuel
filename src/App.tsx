@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Fuel, MapPin, Navigation, Sun, Moon, ArrowRight, Loader2, ChevronDown } from 'lucide-react';
 import { useLocation } from './services/locationService';
 import { fetchGasStations, GasStation } from './services/gasService';
+import { buildGeocodeAddressUrl, resolveManualLocationQuery } from './services/manualLocation';
 
 export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -41,14 +42,14 @@ export default function App() {
     if (current) setLocationInput(current);
   }, [address, manualAddress]);
 
-  const handleManualLocationSubmit = async () => {
-    const query = locationInput.trim();
+  const handleManualLocationSubmit = async (overrideQuery?: string) => {
+    const query = resolveManualLocationQuery(locationInput, overrideQuery);
     if (!query) return;
 
     setManualError(null);
     setFetchingStations(true);
     try {
-      const resp = await fetch(`/api/geocode-address?address=${encodeURIComponent(query)}`);
+      const resp = await fetch(buildGeocodeAddressUrl(query));
       const data = await resp.json();
       if (!resp.ok || data.error || data.lat == null || data.lon == null) {
         throw new Error(data.error || 'Unable to find that location');
@@ -97,7 +98,7 @@ export default function App() {
   const selectSuggestion = async (text: string) => {
     setLocationInput(text);
     setSuggestions([]);
-    await handleManualLocationSubmit();
+    await handleManualLocationSubmit(text);
   };
 
 
